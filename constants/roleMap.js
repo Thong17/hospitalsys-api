@@ -1,4 +1,14 @@
 exports.privilege = {
+    menu: {
+        admin: {
+            route: 'menu',
+            action: 'admin'
+        },
+        config: {
+            route: 'menu',
+            action: 'config'
+        },
+    },
     user: {
         list: {
             route: 'user',
