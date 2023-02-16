@@ -16,6 +16,10 @@ const schema = mongoose.Schema(
             type: Object,
             required: [true, 'Privilege is required!']
         },
+        navigation: {
+            type: Object,
+            required: [true, 'Navigation is required!']
+        },
         createdBy: {
             type: mongoose.Schema.ObjectId,
             ref: 'User'

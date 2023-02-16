@@ -1,14 +1,4 @@
 exports.privilege = {
-    menu: {
-        admin: {
-            route: 'menu',
-            action: 'admin'
-        },
-        config: {
-            route: 'menu',
-            action: 'config'
-        },
-    },
     user: {
         list: {
             route: 'user',
@@ -54,6 +44,33 @@ exports.privilege = {
         }
     },
 }
+
+exports.navigation = {
+    menu: {
+        admin: {
+            route: 'admin',
+            children: ['user', 'role']
+        },
+        config: {
+            route: 'config',
+            children: ['config']
+        },
+    },
+}
+
+let menu
+const menus = Object.keys(this.navigation)
+menus.forEach(m => {
+    menu = {
+        ...menu,
+        [m]: {}
+    }
+    Object.keys(this.navigation[m]).forEach(k => {
+        menu[m][k] = false
+    })
+})
+
+exports.preMenu = menu
 
 let role
 const roles = Object.keys(this.privilege)

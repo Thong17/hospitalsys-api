@@ -38,7 +38,7 @@ exports.detail = async (req, res) => {
     })
 }
 
-exports.list = async (req, res) => {
+exports.list = async (_, res) => {
     Role.find({ isDisabled: false }, (err, roles) => {
         if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
         return response.success(200, { data: roles }, res)
@@ -112,14 +112,24 @@ exports.disable = async (req, res) => {
     }
 }
 
-exports.getPrivilege = (req, res) => {
+exports.getPrivilege = (_, res) => {
     const { privilege } = require('../constants/roleMap')
     response.success(200, { data: privilege }, res)
 }
 
-exports.getPreRole = (req, res) => {
+exports.getNavigation = (_, res) => {
+    const { navigation } = require('../constants/roleMap')
+    response.success(200, { data: navigation }, res)
+}
+
+exports.getPreRole = (_, res) => {
     const { preRole } = require('../constants/roleMap')
     response.success(200, { data: preRole }, res)
+}
+
+exports.getPreMenu = (_, res) => {
+    const { preMenu } = require('../constants/roleMap')
+    response.success(200, { data: preMenu }, res)
 }
 
 exports._import = async (req, res) => {
