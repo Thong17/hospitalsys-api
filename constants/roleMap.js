@@ -46,14 +46,28 @@ exports.privilege = {
 }
 
 exports.navigation = {
-    menu: {
-        admin: {
-            route: 'admin',
-            children: ['user', 'role']
+    admin: {
+        role: {
+            menu: 'admin',
+            navbar: 'role'
         },
-        config: {
-            route: 'config',
-            children: ['config']
+        user: {
+            menu: 'admin',
+            navbar: 'user'
+        },
+    },
+    config: {
+        theme: {
+            menu: 'config',
+            navbar: 'theme'
+        },
+        language: {
+            menu: 'config',
+            navbar: 'language'
+        },
+        telegram: {
+            menu: 'config',
+            navbar: 'telegram'
         },
     },
 }

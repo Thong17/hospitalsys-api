@@ -8,6 +8,9 @@ const createRoleValidation = Joi.object({
         .allow(''),
 
     privilege: Joi.object()
+        .required(),
+
+    navigation: Joi.object()
         .required()
 })
 
