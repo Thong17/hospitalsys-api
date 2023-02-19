@@ -42,7 +42,7 @@ exports.list = async (_, res) => {
     Role.find({ isDisabled: false }, (err, roles) => {
         if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
         return response.success(200, { data: roles }, res)
-    }).select('name privilege')
+    }).select('name privilege navigation')
 }
 
 exports.create = async (req, res) => {
