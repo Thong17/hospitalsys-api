@@ -191,6 +191,7 @@ exports.profile = (req, res) => {
         id: req.user?.id,
         username: req.user?.username,
         privilege: req.user?.role?.privilege,
+        navigation: req.user?.role?.navigation,
         photo: req.user?.profile?.photo?.filename,
         theme: req.user?.config?.theme,
         language: req.user?.config?.language,

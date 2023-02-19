@@ -18,6 +18,7 @@ exports.login = async (req, res) => {
                 id: data.user?.id,
                 username: data.user?.username,
                 privilege: data.user?.role?.privilege,
+                navigation: data.user?.role?.navigation,
                 photo: data.user?.profile?.photo?.filename,
                 theme: data.user?.config?.theme,
                 language: data.user?.config?.language,
