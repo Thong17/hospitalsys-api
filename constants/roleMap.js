@@ -43,6 +43,160 @@ exports.privilege = {
             action: 'delete'
         }
     },
+    category: {
+        list: {
+            route: 'category',
+            action: 'list'
+        },
+        detail: {
+            route: 'category',
+            action: 'detail'
+        },
+        create: {
+            route: 'category',
+            action: 'create'
+        },
+        update: {
+            route: 'category',
+            action: 'update'
+        },
+        delete: {
+            route: 'category',
+            action: 'delete'
+        },
+    },
+    brand: {
+        list: {
+            route: 'brand',
+            action: 'list'
+        },
+        detail: {
+            route: 'brand',
+            action: 'detail'
+        },
+        create: {
+            route: 'brand',
+            action: 'create'
+        },
+        update: {
+            route: 'brand',
+            action: 'update'
+        },
+        delete: {
+            route: 'brand',
+            action: 'delete'
+        },
+    },
+    store: {
+        list: {
+            route: 'store',
+            action: 'list'
+        },
+        detail: {
+            route: 'store',
+            action: 'detail'
+        },
+        create: {
+            route: 'store',
+            action: 'create'
+        },
+        update: {
+            route: 'store',
+            action: 'update'
+        },
+        delete: {
+            route: 'store',
+            action: 'delete'
+        },
+    },
+    product: {
+        list: {
+            route: 'product',
+            action: 'list'
+        },
+        detail: {
+            route: 'product',
+            action: 'detail'
+        },
+        create: {
+            route: 'product',
+            action: 'create'
+        },
+        update: {
+            route: 'product',
+            action: 'update'
+        },
+        delete: {
+            route: 'product',
+            action: 'delete'
+        },
+    },
+    appointment: {
+        list: {
+            route: 'appointment',
+            action: 'list'
+        },
+        detail: {
+            route: 'appointment',
+            action: 'detail'
+        },
+        create: {
+            route: 'appointment',
+            action: 'create'
+        },
+        update: {
+            route: 'appointment',
+            action: 'update'
+        },
+        delete: {
+            route: 'appointment',
+            action: 'delete'
+        },
+    },
+    drawer: {
+        list: {
+            route: 'drawer',
+            action: 'list'
+        },
+        detail: {
+            route: 'drawer',
+            action: 'detail'
+        },
+        create: {
+            route: 'drawer',
+            action: 'create'
+        },
+        update: {
+            route: 'drawer',
+            action: 'update'
+        },
+        delete: {
+            route: 'drawer',
+            action: 'delete'
+        },
+    },
+    preset: {
+        list: {
+            route: 'preset',
+            action: 'list'
+        },
+        detail: {
+            route: 'preset',
+            action: 'detail'
+        },
+        create: {
+            route: 'preset',
+            action: 'create'
+        },
+        update: {
+            route: 'preset',
+            action: 'update'
+        },
+        delete: {
+            route: 'preset',
+            action: 'delete'
+        },
+    },
 }
 
 exports.navigation = {
@@ -54,6 +208,24 @@ exports.navigation = {
         user: {
             menu: 'admin',
             navbar: 'user'
+        },
+    },
+    organize: {
+        category: {
+            menu: 'organize',
+            navbar: 'category'
+        },
+        brand: {
+            menu: 'organize',
+            navbar: 'brand'
+        },
+        product: {
+            menu: 'organize',
+            navbar: 'product'
+        },
+        store: {
+            menu: 'organize',
+            navbar: 'store'
         },
     },
     config: {

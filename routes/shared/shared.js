@@ -1,5 +1,11 @@
 const router = require('express').Router()
 const { list: roleList } = require('../../controllers/roleController')
+const { list: productList } = require('../../controllers/productController')
+const { list: brandList } = require('../../controllers/brandController')
+const { list: categoryList } = require('../../controllers/categoryController')
+const { list: presetCashList } = require('../../controllers/presetController')
+const { info: productInfo, listCode } = require('../../controllers/productController')
+const { listStructure: structureList } = require('../../controllers/storeController')
 const response = require('../../helpers/response')
 const { uploadImageController, uploadIconController, uploadPictureController } = require('../../controllers/sharedController')
 const multer = require('multer')
@@ -52,5 +58,38 @@ router.post('/upload/picture', (req, res) => {
     uploadPictureController(req, res)
   })
 })
+
+router.get('/structure/capacity', (req, res) => {
+  structureCapacity(req, res)
+})
+
+router.get('/product/listCode', (req, res) => {
+  listCode(req, res)
+})
+
+router.get('/brand/list', (req, res) => {
+  brandList(req, res)
+})
+
+router.get('/category/list', (req, res) => {
+  categoryList(req, res)
+})
+
+router.get('/preset/cash/list', (req, res) => {
+  presetCashList(req, res)
+})
+
+router.get('/product/list', (req, res) => {
+  productList(req, res)
+})
+
+router.get('/structure/list', (req, res) => {
+  structureList(req, res)
+})
+
+router.get('/product/info/:id', (req, res) => {
+  productInfo(req, res)
+})
+
 
 module.exports = router
