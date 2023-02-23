@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const multer = require('multer')
 const upload = multer()
-const { index, create, update, toggleStatus, detail, disable, _import, _export, batch } = require('../../controllers/categoryController')
+const { index, create, update, toggleStatus, detail, disable, createProperty, updateProperty, reorderProperty, disableProperty, _import, _export, batch } = require('../../controllers/categoryController')
 const security = require('../../middleware/security')
 const { privilege } = require('../../constants/roleMap')
 
@@ -29,6 +29,28 @@ router.delete('/disable/:id', security.role(privilege.category.delete), security
     disable(req, res)
 })
 
+// PROPERTY
+router.post('/property/create', security.role(privilege.category.create), security.audit(), (req, res) => {
+    createProperty(req, res)
+})
+
+router.get('/property/detail/:id', security.role(privilege.category.detail), (req, res) => {
+    detailProperty(req, res)
+})
+
+router.put('/property/update/:id', security.role(privilege.category.update), security.audit(), (req, res) => {
+    updateProperty(req, res)
+})
+
+router.put('/property/reorder', security.role(privilege.category.update), security.audit(), (req, res) => {
+    reorderProperty(req, res)
+})
+
+router.delete('/property/disable/:id', security.role(privilege.category.delete), security.audit(), (req, res) => {
+    disableProperty(req, res)
+})
+
+// IMPORT AND EXPORT
 router.post('/excel/export', security.role(privilege.category.list), (req, res) => {
     _export(req, res)
 })

@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const multer = require('multer')
 const upload = multer()
-const { index, create, update, detail, disable, enableStock, _import, _export, batch, createProperty, updateProperty, reorderProperty, disableProperty, createOption, updateOption, toggleDefault, disableOption, detailOption, detailProperty, createColor, updateColor, disableColor, detailColor, createCustomerOption, detailCustomerOption, updateCustomerOption, disableCustomerOption } = require('../../controllers/productController')
+const { index, create, update, detail, disable, enableStock, _import, _export, batch, createOption, updateOption, toggleDefault, disableOption, detailOption, detailProperty, createColor, updateColor, disableColor, detailColor, createCustomerOption, detailCustomerOption, updateCustomerOption, disableCustomerOption } = require('../../controllers/productController')
 const security = require('../../middleware/security')
 const { privilege } = require('../../constants/roleMap')
 
@@ -39,26 +39,6 @@ router.post('/excel/import', security.role(privilege.product.create), security.a
 
 router.post('/batch', security.role(privilege.product.create), security.audit(), (req, res) => {
     batch(req, res)
-})
-
-router.post('/property/create', security.role(privilege.product.create), security.audit(), (req, res) => {
-    createProperty(req, res)
-})
-
-router.get('/property/detail/:id', security.role(privilege.product.detail), (req, res) => {
-    detailProperty(req, res)
-})
-
-router.put('/property/update/:id', security.role(privilege.product.update), security.audit(), (req, res) => {
-    updateProperty(req, res)
-})
-
-router.put('/property/reorder', security.role(privilege.product.update), security.audit(), (req, res) => {
-    reorderProperty(req, res)
-})
-
-router.delete('/property/disable/:id', security.role(privilege.product.delete), security.audit(), (req, res) => {
-    disableProperty(req, res)
 })
 
 router.post('/option/create', security.role(privilege.product.create), security.audit(), (req, res) => {

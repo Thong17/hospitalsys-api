@@ -7,6 +7,15 @@ const createCategoryValidation = Joi.object({
     description: Joi.string().optional().allow('')
 })
 
+const createPropertyValidation = Joi.object({
+    name: Joi.object().required(),
+    description: Joi.string().optional().allow(''),
+    category: Joi.string().required(),
+    choice: Joi.string().required(),
+    isRequire: Joi.boolean().required(),
+})
+
 module.exports = {
-    createCategoryValidation
+    createCategoryValidation,
+    createPropertyValidation
 }

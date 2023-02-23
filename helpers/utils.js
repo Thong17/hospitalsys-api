@@ -17,7 +17,18 @@ module.exports = utils = {
     extractJoiErrors: (error) => {
         const messages = []
         error.details?.forEach(error => {
+            let msg = ''
+            switch (error.type) {
+                case 'object.unknown':
+                    message = 'ERROR:JOI_OBJECT_UNKNOWN'
+                    break
+            
+                default:
+                    message = 'ERROR:JOI_DEFAULT'
+                    break
+            }
             const obj = {
+                msg,
                 path: error.message,
                 key: error.context.label
             }
