@@ -1,8 +1,9 @@
 const Category = require('../models/Category')
+const CategoryProperty = require('../models/CategoryProperty')
 const response = require('../helpers/response')
 const { failureMsg } = require('../constants/responseMsg')
 const { extractJoiErrors, readExcel } = require('../helpers/utils')
-const { createCategoryValidation } = require('../middleware/validations/categoryValidation')
+const { createCategoryValidation, createPropertyValidation } = require('../middleware/validations/categoryValidation')
 const { Workbook } = require('exceljs')
 const { worksheetOption } = require('../configs/excel')
 const moment = require('moment')
@@ -31,21 +32,21 @@ exports.index = async (req, res) => {
     })
         .skip(page * limit).limit(limit)
         .sort(filterObj)
-        .populate('icon')
+        .populate('icon properties')
 }
 
 exports.list = async (req, res) => {
     Category.find({ isDeleted: false, status: true }, (err, categories) => {
         if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
         return response.success(200, { data: categories }, res)
-    }).select('name tags icon').populate('icon')
+    }).select('name tags icon').populate('icon properties')
 }
 
 exports.detail = async (req, res) => {
     Category.findById(req.params.id, (err, category) => {
         if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
         return response.success(200, { data: category }, res)
-    }).populate('icon')
+    }).populate('icon properties')
 }
 
 exports.create = async (req, res) => {
@@ -58,14 +59,14 @@ exports.create = async (req, res) => {
             if (err) {
                 switch (err.code) {
                     case 11000:
-                        return response.failure(422, { msg: 'Category already exists!' }, res, err)
+                        return response.failure(422, { msg: 'ERROR:CATEGORY_ALREADY_EXIST' }, res, err)
                     default:
                         return response.failure(422, { msg: err.message }, res, err)
                 }
             }
 
-            if (!category) return response.failure(422, { msg: 'No category created!' }, res, err)
-            response.success(200, { msg: 'Category has created successfully', data: category }, res)
+            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_CREATE' }, res, err)
+            response.success(200, { msg: 'SUCCESS:CATEGORY_CREATED', data: category }, res)
         })
     } catch (err) {
         return response.failure(422, { msg: failureMsg.trouble }, res, err)
@@ -86,8 +87,8 @@ exports.update = async (req, res) => {
                 }
             }
 
-            if (!category) return response.failure(422, { msg: 'No category updated!' }, res, err)
-            response.success(200, { msg: 'Category has updated successfully', data: category }, res)
+            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_UPDATE' }, res, err)
+            response.success(200, { msg: 'SUCCESS:CATEGORY_UPDATED', data: category }, res)
         })
     } catch (err) {
         return response.failure(422, { msg: failureMsg.trouble }, res, err)
@@ -102,8 +103,8 @@ exports.toggleStatus = async (req, res) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
 
             const data = await category.populate('icon')
-            if (!category) return response.failure(422, { msg: 'No category updated!' }, res, err)
-            response.success(200, { msg: 'Category has updated successfully', data }, res)
+            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_UPDATE' }, res, err)
+            response.success(200, { msg: 'SUCCESS:CATEGORY_UPDATED', data }, res)
         })
     } catch (err) {
         return response.failure(422, { msg: failureMsg.trouble }, res, err)
@@ -120,14 +121,92 @@ exports.disable = async (req, res) => {
                 }
             }
 
-            if (!category) return response.failure(422, { msg: 'No category deleted!' }, res, err)
-            response.success(200, { msg: 'Category has deleted successfully', data: category }, res)
+            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_UPDATE' }, res, err)
+            response.success(200, { msg: 'SUCCESS:CATEGORY_UPDATED', data: category }, res)
         })
     } catch (err) {
         return response.failure(422, { msg: failureMsg.trouble }, res, err)
     }
 }
 
+// CRUD PROPERTY
+exports.createProperty = async (req, res) => {
+    const body = req.body
+    const { error } = createPropertyValidation.validate(body, { abortEarly: false })
+    if (error) return response.failure(422, extractJoiErrors(error), res)
+
+    try {
+        CategoryProperty.create(body, (err, property) => {
+            if (err) return response.failure(422, { msg: err.message }, res, err)
+
+            if (!property) return response.failure(422, { msg: 'ERROR:PROPERTY_NOT_CREATE' }, res, err)
+            response.success(200, { msg: 'SUCCESS:PROPERTY_CREATED', data: property }, res)
+        })
+    } catch (err) {
+        return response.failure(422, { msg: failureMsg.trouble }, res, err)
+    }
+}
+
+exports.detailProperty = async (req, res) => {
+    try {
+        const property = await CategoryProperty.findById(req.params.id)
+
+        return response.success(200, { data: property }, res)
+    } catch (err) {
+        if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
+    }   
+}
+
+exports.updateProperty = async (req, res) => {
+    const body = req.body
+    const { error } = createPropertyValidation.validate(body, { abortEarly: false })
+    if (error) return response.failure(422, extractJoiErrors(error), res)
+
+    try {
+        CategoryProperty.findByIdAndUpdate(req.params.id, body, { new: true }, (err, property) => {
+            if (err) {
+                switch (err.code) {
+                    default:
+                        return response.failure(422, { msg: err.message }, res, err)
+                }
+            }
+
+            if (!property) return response.failure(422, { msg: 'ERROR:PROPERTY_NOT_UPDATE' }, res, err)
+            response.success(200, { msg: 'SUCCESS:PROPERTY_UPDATED', data: property }, res)
+        })
+    } catch (err) {
+        return response.failure(422, { msg: failureMsg.trouble }, res, err)
+    }
+}
+
+exports.reorderProperty = async (req, res) => {
+    try {
+        await CategoryProperty.reorder(req.body)
+        response.success(200, { msg: 'SUCCESS:PROPERTY_REORDERED' }, res)
+    } catch (err) {
+        return response.failure(422, { msg: failureMsg.trouble }, res, err)
+    }
+}
+
+exports.disableProperty = async (req, res) => {
+    try {
+        CategoryProperty.findByIdAndRemove(req.params.id, (err, property) => {
+            if (err) {
+                switch (err.code) {
+                    default:
+                        return response.failure(422, { msg: err.message }, res, err)
+                }
+            }
+
+            if (!property) return response.failure(422, { msg: 'ERROR:PROPERTY_NOT_DISABLE' }, res, err)
+            response.success(200, { msg: 'SUCCESS:PROPERTY_DISABLED', data: property }, res)
+        })
+    } catch (err) {
+        return response.failure(422, { msg: failureMsg.trouble }, res, err)
+    }
+}
+
+// IMPORT AND EXPORT
 exports._import = async (req, res) => {
     try {
         const languages = JSON.parse(req.body.languages)
@@ -148,7 +227,7 @@ exports._import = async (req, res) => {
                 name: mapName
             }) 
         })
-        response.success(200, { msg: 'List has been previewed', data }, res)
+        response.success(200, { msg: 'SUCCESS:CATEGORY_LIST_PREVIEWED', data }, res)
     } catch (err) {
         return response.failure(err.code, { msg: err.msg }, res)
     }
@@ -272,7 +351,7 @@ exports.batch = async (req, res) => {
 
         Category.insertMany(categories)
             .then(data => {
-                response.success(200, { msg: `${data.length} ${data.length > 1 ? 'categories' : 'category'} has been inserted` }, res)
+                response.success(200, { msg: `SUCCESS:CATEGORY_INSERTED`, count: data.length }, res)
             })
             .catch(err => {
                 return response.failure(422, { msg: err.message }, res)
