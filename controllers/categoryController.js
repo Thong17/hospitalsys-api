@@ -60,8 +60,6 @@ exports.create = async (req, res) => {
     try {
         Category.create({...body, createdBy: req.user.id}, (err, category) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_CREATE' }, res, err)
             response.success(200, { msg: 'SUCCESS:CATEGORY_CREATED', data: category }, res)
         })
     } catch (err) {
@@ -77,8 +75,6 @@ exports.update = async (req, res) => {
     try {
         Category.findByIdAndUpdate(req.params.id, body, (err, category) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_UPDATE' }, res, err)
             response.success(200, { msg: 'SUCCESS:CATEGORY_UPDATED', data: category }, res)
         })
     } catch (err) {
@@ -92,9 +88,7 @@ exports.toggleStatus = async (req, res) => {
         const category = await Category.findById(id)
         Category.findByIdAndUpdate(id, { status: !category.status }, { new: true }, async (err, category) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
             const data = await category.populate('icon')
-            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_TOGGLE' }, res, err)
             response.success(200, { msg: 'SUCCESS:CATEGORY_TOGGLED', data }, res)
         })
     } catch (err) {
@@ -106,9 +100,7 @@ exports.remove = async (req, res) => {
     try {
         Category.findByIdAndUpdate(req.params.id, { isDeleted: true }, (err, category) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!category) return response.failure(422, { msg: 'ERROR:CATEGORY_NOT_DISABLE' }, res, err)
-            response.success(200, { msg: 'SUCCESS:CATEGORY_DISABLED', data: category }, res)
+            response.success(200, { msg: 'SUCCESS:CATEGORY_REMOVED', data: category }, res)
         })
     } catch (err) {
         return response.failure(422, { msg: failureMsg.trouble }, res, err)
@@ -124,8 +116,6 @@ exports.createProperty = async (req, res) => {
     try {
         CategoryProperty.create(body, (err, property) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!property) return response.failure(422, { msg: 'ERROR:PROPERTY_NOT_CREATE' }, res, err)
             response.success(200, { msg: 'SUCCESS:PROPERTY_CREATED', data: property }, res)
         })
     } catch (err) {
@@ -136,7 +126,6 @@ exports.createProperty = async (req, res) => {
 exports.detailProperty = async (req, res) => {
     try {
         const property = await CategoryProperty.findById(req.params.id)
-
         return response.success(200, { data: property }, res)
     } catch (err) {
         if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
@@ -151,8 +140,6 @@ exports.updateProperty = async (req, res) => {
     try {
         CategoryProperty.findByIdAndUpdate(req.params.id, body, { new: true }, (err, property) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!property) return response.failure(422, { msg: 'ERROR:PROPERTY_NOT_UPDATE' }, res, err)
             response.success(200, { msg: 'SUCCESS:PROPERTY_UPDATED', data: property }, res)
         })
     } catch (err) {
@@ -173,8 +160,6 @@ exports.removeProperty = async (req, res) => {
     try {
         CategoryProperty.findByIdAndRemove(req.params.id, (err, property) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!property) return response.failure(422, { msg: 'ERROR:PROPERTY_NOT_REMOVED' }, res, err)
             response.success(200, { msg: 'SUCCESS:PROPERTY_REMOVED', data: property }, res)
         })
     } catch (err) {
@@ -191,8 +176,6 @@ exports.createOption = async (req, res) => {
     try {
         CategoryOption.create(body, (err, option) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!option) return response.failure(422, { msg: 'ERROR:OPTION_NOT_CREATE' }, res, err)
             response.success(200, { msg: 'SUCCESS:OPTION_CREATED', data: option }, res)
         })
     } catch (err) {
@@ -219,8 +202,6 @@ exports.updateOption = async (req, res) => {
     try {
         CategoryOption.findByIdAndUpdate(req.params.id, body, { new: true }, (err, option) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!option) return response.failure(422, { msg: 'ERROR:OPTION_NOT_UPDATE' }, res, err)
             response.success(200, { msg: 'SUCCESS:OPTION_UPDATED', data: option }, res)
         })
     } catch (err) {
@@ -255,8 +236,6 @@ exports.removeOption = async (req, res) => {
     try {
         CategoryOption.findByIdAndRemove(req.params.id, (err, option) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
-
-            if (!option) return response.failure(422, { msg: 'ERROR:OPTION_NOT_REMOVE' }, res, err)
             response.success(200, { msg: 'SUCCESS:OPTION_REMOVED', data: option }, res)
         })
     } catch (err) {
@@ -285,7 +264,7 @@ exports._import = async (req, res) => {
                 name: mapName
             }) 
         })
-        response.success(200, { msg: 'SUCCESS:CATEGORY_LIST_PREVIEWED', data }, res)
+        response.success(200, { msg: 'SUCCESS:CATEGORY_IMPORTED', data }, res)
     } catch (err) {
         return response.failure(err.code, { msg: err.msg }, res)
     }
