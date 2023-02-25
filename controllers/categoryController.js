@@ -102,7 +102,7 @@ exports.toggleStatus = async (req, res) => {
     }
 }
 
-exports.disable = async (req, res) => {
+exports.remove = async (req, res) => {
     try {
         Category.findByIdAndUpdate(req.params.id, { isDeleted: true }, (err, category) => {
             if (err) return response.failure(422, { msg: err.message }, res, err)
