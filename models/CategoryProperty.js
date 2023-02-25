@@ -47,7 +47,7 @@ schema.post('save', async function () {
 schema.statics.reorder = function (reorderedItems) {
     const promises = []
     for (let index = 0; index < reorderedItems.length; index++) {
-        const item = reorderedItems[index];
+        const item = reorderedItems[index]
         const promise = this.findByIdAndUpdate(item._id, { order: item.order }, { new: true })
         promises.push(promise)
     }

@@ -46,7 +46,7 @@ exports.detail = async (req, res) => {
     Category.findById(req.params.id, (err, category) => {
         if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
         return response.success(200, { data: category }, res)
-    }).populate('icon properties')
+    }).populate('icon').populate({ path: 'properties', options: { sort: { 'order': 1 } }})
 }
 
 exports.create = async (req, res) => {
@@ -188,15 +188,10 @@ exports.reorderProperty = async (req, res) => {
     }
 }
 
-exports.disableProperty = async (req, res) => {
+exports.removeProperty = async (req, res) => {
     try {
         CategoryProperty.findByIdAndRemove(req.params.id, (err, property) => {
-            if (err) {
-                switch (err.code) {
-                    default:
-                        return response.failure(422, { msg: err.message }, res, err)
-                }
-            }
+            if (err) return response.failure(422, { msg: err.message }, res, err)
 
             if (!property) return response.failure(422, { msg: 'ERROR:PROPERTY_NOT_DISABLE' }, res, err)
             response.success(200, { msg: 'SUCCESS:PROPERTY_DISABLED', data: property }, res)

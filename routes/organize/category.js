@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const multer = require('multer')
 const upload = multer()
-const { index, create, update, toggleStatus, detail, disable, createProperty, updateProperty, reorderProperty, disableProperty, _import, _export, batch } = require('../../controllers/categoryController')
+const { index, create, update, toggleStatus, detail, disable, createProperty, updateProperty, reorderProperty, removeProperty, _import, _export, batch } = require('../../controllers/categoryController')
 const security = require('../../middleware/security')
 const { privilege } = require('../../constants/roleMap')
 
@@ -46,8 +46,8 @@ router.put('/property/reorder', security.role(privilege.category.update), securi
     reorderProperty(req, res)
 })
 
-router.delete('/property/disable/:id', security.role(privilege.category.delete), security.audit(), (req, res) => {
-    disableProperty(req, res)
+router.delete('/property/remove/:id', security.role(privilege.category.delete), security.audit(), (req, res) => {
+    removeProperty(req, res)
 })
 
 // IMPORT AND EXPORT
