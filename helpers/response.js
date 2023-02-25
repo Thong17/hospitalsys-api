@@ -1,4 +1,5 @@
 const { successCode, failureCode } = require('../constants/statusCodes')
+const { failureMsg } = require('../constants/responseMsg')
 
 exports.success = (code, data, res) => {
     const result = {
@@ -10,9 +11,11 @@ exports.success = (code, data, res) => {
 }
 
 exports.failure = (code, data, res, error) => {
+    const { msg, ...rest } = data
     const result = {
         code: failureCode[code] ? failureCode[code] : 'UNKNOWN_CODE',
-        ...data
+        msg: msg || failureMsg.trouble,
+        ...rest,
     }
     error && console.error(error)
     res.status(code || 500)

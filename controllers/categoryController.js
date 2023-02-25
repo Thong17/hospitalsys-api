@@ -26,7 +26,7 @@ exports.index = async (req, res) => {
     }
 
     Category.find({ isDeleted: false, ...query }, async (err, categories) => {
-        if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        if (err) return response.failure(422, { msg: err.message }, res, err)
 
         const totalCount = await Category.count({ isDeleted: false })
         return response.success(200, { data: categories, length: totalCount }, res)
@@ -38,14 +38,14 @@ exports.index = async (req, res) => {
 
 exports.list = async (req, res) => {
     Category.find({ isDeleted: false, status: true }, (err, categories) => {
-        if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        if (err) return response.failure(422, { msg: err.message }, res, err)
         return response.success(200, { data: categories }, res)
     }).select('name tags icon').populate('icon properties')
 }
 
 exports.detail = async (req, res) => {
     Category.findById(req.params.id, (err, category) => {
-        if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        if (err) return response.failure(422, { msg: err.message }, res, err)
         return response.success(200, { data: category }, res)
     })
         .populate('icon')
@@ -56,15 +56,10 @@ exports.create = async (req, res) => {
     const body = req.body
     const { error } = categoryValidation.validate(body, { abortEarly: false })
     if (error) return response.failure(422, extractJoiErrors(error), res)
-
-    try {
-        Category.create({...body, createdBy: req.user.id}, (err, category) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:CATEGORY_CREATED', data: category }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    Category.create({...body, createdBy: req.user.id}, (err, category) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:CATEGORY_CREATED', data: category }, res)
+    })
 }
 
 exports.update = async (req, res) => {
@@ -72,39 +67,29 @@ exports.update = async (req, res) => {
     const { error } = categoryValidation.validate(body, { abortEarly: false })
     if (error) return response.failure(422, extractJoiErrors(error), res)
 
-    try {
-        Category.findByIdAndUpdate(req.params.id, body, (err, category) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:CATEGORY_UPDATED', data: category }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    const tags = `${JSON.stringify(body.name)}${body.description}`.replace(/ /g,'')
+    Category.findByIdAndUpdate(req.params.id, { ...body, tags }, (err, category) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:CATEGORY_UPDATED', data: category }, res)
+    })
 }
 
 exports.toggleStatus = async (req, res) => {
     try {
         const id = req.params.id
         const category = await Category.findById(id)
-        Category.findByIdAndUpdate(id, { status: !category.status }, { new: true }, async (err, category) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            const data = await category.populate('icon')
-            response.success(200, { msg: 'SUCCESS:CATEGORY_TOGGLED', data }, res)
-        })
+        const data = await Category.findByIdAndUpdate(id, { status: !category.status }, { new: true }).populate('icon')
+        response.success(200, { msg: 'SUCCESS:CATEGORY_TOGGLED', data }, res)
     } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        return response.failure(422, { msg: err?.message }, res, err)
     }
 }
 
 exports.remove = async (req, res) => {
-    try {
-        Category.findByIdAndUpdate(req.params.id, { isDeleted: true }, (err, category) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:CATEGORY_REMOVED', data: category }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    Category.findByIdAndUpdate(req.params.id, { isDeleted: true }, (err, category) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:CATEGORY_REMOVED', data: category }, res)
+    })
 }
 
 // CRUD PROPERTY
@@ -113,14 +98,10 @@ exports.createProperty = async (req, res) => {
     const { error } = propertyValidation.validate(body, { abortEarly: false })
     if (error) return response.failure(422, extractJoiErrors(error), res)
 
-    try {
-        CategoryProperty.create(body, (err, property) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:PROPERTY_CREATED', data: property }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    CategoryProperty.create(body, (err, property) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:PROPERTY_CREATED', data: property }, res)
+    })
 }
 
 exports.detailProperty = async (req, res) => {
@@ -128,7 +109,7 @@ exports.detailProperty = async (req, res) => {
         const property = await CategoryProperty.findById(req.params.id)
         return response.success(200, { data: property }, res)
     } catch (err) {
-        if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        return response.failure(422, { msg: err?.message }, res, err)
     }   
 }
 
@@ -137,14 +118,10 @@ exports.updateProperty = async (req, res) => {
     const { error } = propertyValidation.validate(body, { abortEarly: false })
     if (error) return response.failure(422, extractJoiErrors(error), res)
 
-    try {
-        CategoryProperty.findByIdAndUpdate(req.params.id, body, { new: true }, (err, property) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:PROPERTY_UPDATED', data: property }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    CategoryProperty.findByIdAndUpdate(req.params.id, body, { new: true }, (err, property) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:PROPERTY_UPDATED', data: property }, res)
+    })
 }
 
 exports.reorderProperty = async (req, res) => {
@@ -152,19 +129,15 @@ exports.reorderProperty = async (req, res) => {
         await CategoryProperty.reorder(req.body)
         response.success(200, { msg: 'SUCCESS:PROPERTY_REORDERED' }, res)
     } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        return response.failure(422, { msg: err?.message }, res, err)
     }
 }
 
 exports.removeProperty = async (req, res) => {
-    try {
-        CategoryProperty.findByIdAndRemove(req.params.id, (err, property) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:PROPERTY_REMOVED', data: property }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    CategoryProperty.findByIdAndRemove(req.params.id, (err, property) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:PROPERTY_REMOVED', data: property }, res)
+    })
 }
 
 // CRUD OPTION
@@ -173,14 +146,10 @@ exports.createOption = async (req, res) => {
     const { error } = optionValidation.validate(body, { abortEarly: false })
     if (error) return response.failure(422, extractJoiErrors(error), res)
 
-    try {
-        CategoryOption.create(body, (err, option) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:OPTION_CREATED', data: option }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    CategoryOption.create(body, (err, option) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:OPTION_CREATED', data: option }, res)
+    })
 }
 
 exports.detailOption = async (req, res) => {
@@ -190,7 +159,7 @@ exports.detailOption = async (req, res) => {
 
         return response.success(200, { data: option }, res)
     } catch (err) {
-        if (err) return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        if (err) return response.failure(422, { msg: err?.message }, res, err)
     }   
 }
 
@@ -199,14 +168,10 @@ exports.updateOption = async (req, res) => {
     const { error } = optionValidation.validate(body, { abortEarly: false })
     if (error) return response.failure(422, extractJoiErrors(error), res)
 
-    try {
-        CategoryOption.findByIdAndUpdate(req.params.id, body, { new: true }, (err, option) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:OPTION_UPDATED', data: option }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    CategoryOption.findByIdAndUpdate(req.params.id, body, { new: true }, (err, option) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:OPTION_UPDATED', data: option }, res)
+    })
 }
 
 exports.toggleDefault = async (req, res) => {
@@ -228,19 +193,15 @@ exports.toggleDefault = async (req, res) => {
         await CategoryOption.findByIdAndUpdate(id, { isDefault: true })
         return response.success(200, { msg: 'SUCCESS:OPTION_TOGGLED' }, res)
     } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
+        return response.failure(422, { msg: err?.message }, res, err)
     }
 }
 
 exports.removeOption = async (req, res) => {
-    try {
-        CategoryOption.findByIdAndRemove(req.params.id, (err, option) => {
-            if (err) return response.failure(422, { msg: err.message }, res, err)
-            response.success(200, { msg: 'SUCCESS:OPTION_REMOVED', data: option }, res)
-        })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res, err)
-    }
+    CategoryOption.findByIdAndRemove(req.params.id, (err, option) => {
+        if (err) return response.failure(422, { msg: err.message }, res, err)
+        response.success(200, { msg: 'SUCCESS:OPTION_REMOVED', data: option }, res)
+    })
 }
 
 // IMPORT AND EXPORT
@@ -383,18 +344,11 @@ exports._export = async (req, res) => {
 }
 
 exports.batch = async (req, res) => {
-    try {
-        const categories = req.body
-
-        Category.insertMany(categories)
-            .then(data => {
-                response.success(200, { msg: `SUCCESS:CATEGORY_INSERTED`, count: data.length }, res)
-            })
-            .catch(err => {
-                return response.failure(422, { msg: err.message }, res)
-            })
-    } catch (err) {
-        return response.failure(422, { msg: failureMsg.trouble }, res)
-    }
+    const categories = req.body
+    Category.insertMany(categories)
+        .then(data => {
+            response.success(200, { msg: `SUCCESS:CATEGORY_INSERTED`, count: data.length }, res)
+        })
+        .catch(err => response.failure(422, { msg: err.message }, res))
 }
 
