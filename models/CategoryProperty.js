@@ -25,7 +25,7 @@ const schema = mongoose.Schema(
         },
         options: [{
             type: mongoose.Schema.ObjectId,
-            ref: 'ProductOption'
+            ref: 'CategoryOption'
         }],
         category: {
             type: mongoose.Schema.ObjectId,

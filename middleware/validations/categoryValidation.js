@@ -1,13 +1,13 @@
 const Joi = require('joi')
 
-const createCategoryValidation = Joi.object({
+const categoryValidation = Joi.object({
     name: Joi.object().required(),
     status: Joi.boolean().optional(),
     icon: Joi.any().optional(),
     description: Joi.string().optional().allow('')
 })
 
-const createPropertyValidation = Joi.object({
+const propertyValidation = Joi.object({
     name: Joi.object().required(),
     description: Joi.string().optional().allow(''),
     category: Joi.string().required(),
@@ -15,7 +15,18 @@ const createPropertyValidation = Joi.object({
     isRequire: Joi.boolean().required(),
 })
 
+const optionValidation = Joi.object({
+    name: Joi.object().required(),
+    price: Joi.number().optional(),
+    currency: Joi.string().optional(),
+    profile: Joi.any().optional(),
+    description: Joi.string().optional().allow(''),
+    property: Joi.string().required(),
+    category: Joi.string().required(),
+})
+
 module.exports = {
-    createCategoryValidation,
-    createPropertyValidation
+    categoryValidation,
+    propertyValidation,
+    optionValidation
 }

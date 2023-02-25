@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const multer = require('multer')
 const upload = multer()
-const { index, create, update, toggleStatus, detail, disable, createProperty, updateProperty, reorderProperty, removeProperty, _import, _export, batch } = require('../../controllers/categoryController')
+const { index, create, update, toggleStatus, detail, disable, createProperty, updateProperty, reorderProperty, removeProperty, createOption, updateOption, toggleDefault, removeOption, detailOption, _import, _export, batch } = require('../../controllers/categoryController')
 const security = require('../../middleware/security')
 const { privilege } = require('../../constants/roleMap')
 
@@ -48,6 +48,27 @@ router.put('/property/reorder', security.role(privilege.category.update), securi
 
 router.delete('/property/remove/:id', security.role(privilege.category.delete), security.audit(), (req, res) => {
     removeProperty(req, res)
+})
+
+// OPTION
+router.post('/option/create', security.role(privilege.product.create), security.audit(), (req, res) => {
+    createOption(req, res)
+})
+
+router.get('/option/detail/:id', security.role(privilege.product.detail), (req, res) => {
+    detailOption(req, res)
+})
+
+router.put('/option/update/:id', security.role(privilege.product.update), security.audit(), (req, res) => {
+    updateOption(req, res)
+})
+
+router.put('/option/toggle/:id', security.role(privilege.product.update), security.audit(), (req, res) => {
+    toggleDefault(req, res)
+})
+
+router.delete('/option/remove/:id', security.role(privilege.product.delete), security.audit(), (req, res) => {
+    removeOption(req, res)
 })
 
 // IMPORT AND EXPORT

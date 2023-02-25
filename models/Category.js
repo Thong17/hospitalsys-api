@@ -35,6 +35,10 @@ const schema = mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'CategoryProperty'
         }],
+        options: [{
+            type: mongoose.Schema.ObjectId,
+            ref: 'CategoryOption'
+        }],
         tags: {
             type: String,
         },
