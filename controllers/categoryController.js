@@ -49,7 +49,7 @@ exports.detail = async (req, res) => {
         return response.success(200, { data: category }, res)
     })
         .populate('icon')
-        .populate({ path: 'properties', options: { sort: { 'order': 1 } }, populate: 'options'})
+        .populate({ path: 'properties', options: { sort: { 'order': 1 } }, populate: { path: 'options', populate: 'profile' }})
 }
 
 exports.create = async (req, res) => {
