@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const multer = require('multer')
 const upload = multer()
-const { index, create, update, detail, disable, enableStock, _import, _export, batch, createOption, updateOption, toggleDefault, disableOption, detailOption, detailProperty, createColor, updateColor, disableColor, detailColor, createCustomerOption, detailCustomerOption, updateCustomerOption, disableCustomerOption } = require('../../controllers/productController')
+const { index, create, update, detail, disable, enableStock, _import, _export, batch, createOption, updateOption, toggleDefault, disableOption, detailOption, createColor, updateColor, disableColor, detailColor, createCustomerOption, detailCustomerOption, updateCustomerOption, disableCustomerOption, createProperty, detailProperty, updateProperty, removeProperty, reorderProperty, listProperty } = require('../../controllers/productController')
 const security = require('../../middleware/security')
 const { privilege } = require('../../constants/roleMap')
 
@@ -41,6 +41,32 @@ router.post('/batch', security.role(privilege.product.create), security.audit(),
     batch(req, res)
 })
 
+// PROPERTY
+router.get('/property/list/:productId', security.role(privilege.product.list), security.audit(), (req, res) => {
+    listProperty(req, res)
+})
+
+router.post('/property/create', security.role(privilege.product.create), security.audit(), (req, res) => {
+    createProperty(req, res)
+})
+
+router.get('/property/detail/:id', security.role(privilege.product.detail), (req, res) => {
+    detailProperty(req, res)
+})
+
+router.put('/property/update/:id', security.role(privilege.product.update), security.audit(), (req, res) => {
+    updateProperty(req, res)
+})
+
+router.put('/property/reorder', security.role(privilege.product.update), security.audit(), (req, res) => {
+    reorderProperty(req, res)
+})
+
+router.delete('/property/remove/:id', security.role(privilege.product.delete), security.audit(), (req, res) => {
+    removeProperty(req, res)
+})
+
+// OPTION
 router.post('/option/create', security.role(privilege.product.create), security.audit(), (req, res) => {
     createOption(req, res)
 })
