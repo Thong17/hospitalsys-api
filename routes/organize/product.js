@@ -83,7 +83,7 @@ router.put('/option/toggle/:id', security.role(privilege.product.update), securi
     toggleDefault(req, res)
 })
 
-router.delete('/option/disable/:id', security.role(privilege.product.delete), security.audit(), (req, res) => {
+router.delete('/option/remove/:id', security.role(privilege.product.delete), security.audit(), (req, res) => {
     disableOption(req, res)
 })
 
