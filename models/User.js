@@ -16,6 +16,10 @@ const schema = mongoose.Schema(
         email: {
             type: String,
         },
+        segment: {
+            type: String,
+            default: 'GENERAL'
+        },
         password: {
             type: String,
             required: [true, 'Password is required!'],

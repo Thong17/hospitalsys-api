@@ -14,6 +14,9 @@ const createUserValidation = Joi.object({
     role: Joi.string()
         .required(),
 
+    segment: Joi.string()
+        .required(),
+
     password: Joi.string()
         .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
         .required(),
@@ -31,6 +34,9 @@ const updateUserValidation = Joi.object({
         .required(),
         
     role: Joi.string()
+        .required(),
+
+    segment: Joi.string()
         .required(),
 
     password: Joi.string()
