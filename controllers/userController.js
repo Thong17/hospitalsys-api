@@ -196,7 +196,8 @@ exports.profile = (req, res) => {
         theme: req.user?.config?.theme,
         language: req.user?.config?.language,
         favorites: req.user?.favorites,
-        isDefault: req.user?.isDefault
+        isDefault: req.user?.isDefault,
+        drawer: req.user?.drawer
     }
     return response.success(200, { user }, res)
 }

@@ -66,6 +66,10 @@ const schema = mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'Config'
         },
+        drawer: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Drawer'
+        },
         createdBy: {
             type: mongoose.Schema.ObjectId,
             ref: 'User'

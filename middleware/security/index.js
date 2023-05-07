@@ -28,7 +28,7 @@ exports.auth = (req, res, next) => {
         .then(async decoded => {
             const User = require('../../models/User')
             const { id } = decoded
-            const user = await User.findById(id).populate('role').populate({ path: 'profile', populate: { path: 'photo' } }).populate('config')
+            const user = await User.findById(id).populate('role').populate({ path: 'profile', populate: { path: 'photo' } }).populate('config').populate('drawer')
             req.user = user
             next()
         })

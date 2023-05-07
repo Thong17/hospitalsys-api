@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Role = require('../models/Role')
 const User = require('../models/User')
+
 const { encryptPassword } = require('../helpers/utils')
 
 mongoose.connect(process.env.DATABASE_URL, {
@@ -43,6 +44,9 @@ mongoose.connect(process.env.DATABASE_URL, {
             role: role._id,
             isDefault: true
         })
+        await Store.create({})
+        await StoreFloor.create({})
+        await StoreSetting.create({})
         console.log('Mongo Client is connected...')
     } catch (err) {
         console.error(err)

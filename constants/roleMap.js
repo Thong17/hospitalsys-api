@@ -43,6 +43,72 @@ exports.privilege = {
             action: 'delete'
         }
     },
+    cashing: {
+        list: {
+            route: 'cashing',
+            action: 'list'
+        },
+        detail: {
+            route: 'cashing',
+            action: 'detail'
+        },
+        create: {
+            route: 'cashing',
+            action: 'create'
+        },
+        update: {
+            route: 'cashing',
+            action: 'update'
+        },
+        delete: {
+            route: 'cashing',
+            action: 'delete'
+        }
+    },
+    transaction: {
+        list: {
+            route: 'transaction',
+            action: 'list'
+        },
+        detail: {
+            route: 'transaction',
+            action: 'detail'
+        },
+        create: {
+            route: 'transaction',
+            action: 'create'
+        },
+        update: {
+            route: 'transaction',
+            action: 'update'
+        },
+        delete: {
+            route: 'transaction',
+            action: 'delete'
+        }
+    },
+    reservation: {
+        list: {
+            route: 'reservation',
+            action: 'list'
+        },
+        detail: {
+            route: 'reservation',
+            action: 'detail'
+        },
+        create: {
+            route: 'reservation',
+            action: 'create'
+        },
+        update: {
+            route: 'reservation',
+            action: 'update'
+        },
+        delete: {
+            route: 'reservation',
+            action: 'delete'
+        }
+    },
     category: {
         list: {
             route: 'category',
@@ -209,6 +275,12 @@ exports.navigation = {
             menu: 'admin',
             navbar: 'user'
         },
+    },
+    operation: {
+        cashing: {
+            menu: 'operation',
+            navbar: 'cashing'
+        }
     },
     organize: {
         category: {

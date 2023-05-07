@@ -23,7 +23,8 @@ exports.login = async (req, res) => {
                 theme: data.user?.config?.theme,
                 language: data.user?.config?.language,
                 favorites: data.user?.favorites,
-                isDefault: data.user?.isDefault
+                isDefault: data.user?.isDefault,
+                drawer: data.user?.drawer,
             }
             response.success(200, { accessToken: data.token, user }, res)
         })

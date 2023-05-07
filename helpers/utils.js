@@ -1,7 +1,12 @@
+const moment = require('moment')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { default: mongoose } = require('mongoose')
 const responseMsg = require('../constants/responseMsg')
+const ProductStock = require('../models/ProductStock')
+const Product = require('../models/Product')
+const Transaction = require('../models/Transaction')
+const Customer = require('../models/Customer')
 
 module.exports = utils = {
     encryptPassword: (plainPassword) => {
@@ -17,18 +22,7 @@ module.exports = utils = {
     extractJoiErrors: (error) => {
         const messages = []
         error.details?.forEach(error => {
-            let msg = ''
-            switch (error.type) {
-                case 'object.unknown':
-                    message = 'ERROR:JOI_OBJECT_UNKNOWN'
-                    break
-            
-                default:
-                    message = 'ERROR:JOI_DEFAULT'
-                    break
-            }
             const obj = {
-                msg,
                 path: error.message,
                 key: error.context.label
             }
@@ -158,6 +152,127 @@ module.exports = utils = {
         }
         return totalObj
     },
+    determineProductStock: async (product, color, options, quantity, transactionStocks) => {
+        var transactionId = mongoose.Types.ObjectId()
+        const result = await Product.findById(product).select('isStock')
+        if (!result || !result.isStock) return { isValid: true, transactionId, orderStocks: [], stockCosts: [] }
+
+        let filter = { product }
+        if (options.length > 0) filter['options'] = { '$in': options }
+        if (color) filter['color'] = color
+
+        let orderQuantity = quantity
+        let orderStocks = []
+
+        const stocks = await ProductStock.find(filter)
+        const allStocks = await ProductStock.find({ product })
+        let totalAllStock = 0
+        allStocks.forEach(stock => {
+            totalAllStock += stock.quantity
+        })
+
+        if (transactionStocks) {
+            stocks.sort((first, second) => {
+                var a = 0
+                if (transactionStocks.some(item => item.id.equals(first._id))) a = 2
+
+                var b = 0
+                if (transactionStocks.some(item => item.id.equals(second._id))) b = 2
+                return b - a
+            })
+        }
+        let totalStock = 0
+        let stockCosts = []
+        stocks.forEach(stock => {
+            totalStock += stock.quantity
+        })
+        if (totalStock < orderQuantity) {
+            for (let index = 0; index < transactionStocks.length; index++) {
+                const transactionStock = transactionStocks[index]
+                const stock = await ProductStock.findById(transactionStock.id)
+                await ProductStock.findByIdAndUpdate(transactionStock.id, { quantity: stock.quantity - transactionStock.quantity })
+            }
+            return { isValid: false, msg: 'Product quantity has exceed our current stock' }
+        }
+
+        for (let index = 0; index < stocks.length; index++) {
+            const stock = stocks[index]
+            let remainQuantity = stock.quantity
+
+            if (orderQuantity < 1) break
+            if (stock.quantity < 1) continue
+            if (orderQuantity > stock.quantity) {
+                orderStocks.push({ id: stock._id, quantity: stock.quantity })
+                stockCosts.push({ cost: stock.cost * stock.quantity, currency: stock.currency })
+                orderQuantity -= stock.quantity
+                totalAllStock -= stock.quantity
+                remainQuantity = 0
+            } else {
+                orderStocks.push({ id: stock._id, quantity: orderQuantity })
+                stockCosts.push({ cost: stock.cost * orderQuantity, currency: stock.currency })
+                remainQuantity -= orderQuantity
+                totalAllStock -= orderQuantity
+                orderQuantity = 0
+            }
+            
+            await ProductStock.findByIdAndUpdate(stock._id, { quantity: remainQuantity, transactions: [...stock.transactions, transactionId] })
+        }
+        return { isValid: true, transactionId, orderStocks, stockCosts, stockRemain: { totalAllStock, productId: product } }
+    },
+
+    checkProductStock: async (stockId, quantity) => {
+        var transactionId = mongoose.Types.ObjectId()
+
+        let orderQuantity = quantity
+        let orderStocks = []
+
+        const stock = await ProductStock.findById(stockId).populate('product')
+        if (!stock) return { isValid: false, msg: 'Product quantity has exceed our current stock' }
+
+        let totalStock = stock.quantity
+        let stockCosts = []
+
+        if (totalStock < orderQuantity) return { isValid: false, msg: 'Product quantity has exceed our current stock' }
+
+        const remainStock = totalStock - orderQuantity
+
+        orderStocks.push({ id: stock._id, quantity: orderQuantity })
+        stockCosts.push({ cost: stock.cost * orderQuantity, currency: stock.currency })
+        
+        await ProductStock.findByIdAndUpdate(stockId, { quantity: remainStock, transactions: [...stock.transactions, transactionId] })
+
+        const transactionBody = { _id: transactionId, 
+            product: stock.product._id, 
+            description: stock.product.name['English'],
+            color: stock.color,
+            options: stock.options,
+            price: stock.product.price,
+            currency: stock.product.currency,
+            total: { value: stock.product.price * orderQuantity, currency: stock.product.currency },
+            quantity,
+            promotion: stock.product.promotion
+        }
+        
+        return { isValid: true, transactionBody, orderStocks, stockCosts }
+    },
+
+    reverseProductStock: (stocks) => {
+        return new Promise(async (resolve, reject) => {
+            if (!stocks) reject({ msg: responseMsg.failureMsg.trouble, code: 422 })
+            try {
+                let totalAllStock = 0
+                for (let index = 0; index < stocks.length; index++) {
+                    const transactionStock = stocks[index]
+                    const stock = await ProductStock.findById(transactionStock.id)
+                    const updatedStock = await ProductStock.findByIdAndUpdate(transactionStock.id, { quantity: stock.quantity + transactionStock.quantity }, { new: true })
+                    totalAllStock += updatedStock.quantity
+                }
+                resolve({ totalAllStock })
+            } catch (err) {
+                reject({ msg: responseMsg.failureMsg.trouble, code: 422 })
+            }
+        })
+    },
     calculatePaymentTotal: (transactions, services, vouchers, discounts, exchangeRate) => {
         const { sellRate } = exchangeRate
         let totalUSD = 0
@@ -262,6 +377,31 @@ module.exports = utils = {
             )
             .then(res => resolve(res))
             .catch(err => reject(err))
+        })
+    },
+    checkoutTransaction: ({ transactions }) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                for (let i = 0; i < transactions.length; i++) {
+                    const transaction = transactions[i]
+                    await Transaction.findByIdAndUpdate(transaction, { status: true })
+                }
+                resolve({ message: `${transactions.length} ${transactions.length > 1 ? 'transactions' : 'transaction'} has been completed.` })
+            } catch (err) {
+                reject(err)
+            }
+        })
+    },
+    calculateCustomerPoint: ({ customerId, paymentPoint = 0 }) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const customer = await Customer.findById(customerId)
+                customer.point = customer.point + paymentPoint
+                customer.save()
+                resolve({ message: `${paymentPoint} ${paymentPoint > 1 ? 'points' : 'point'} has been added.` })
+            } catch (err) {
+                reject(err)
+            }
         })
     },
 }
