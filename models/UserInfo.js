@@ -2,26 +2,22 @@ const mongoose = require('mongoose')
 
 const schema = mongoose.Schema(
     {
-        lastName: {
+        referenceId: {
             type: String
         },
-        firstName: {
+        bloodType: {
             type: String
         },
-        photo: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'Picture'
-        },
-        gender: {
+        weight: {
             type: String
         },
-        birthday: {
-            type: Date
-        },
-        contact: {
+        height: {
             type: String
         },
-        address: {
+        nationality: {
+            type: String
+        },
+        religion: {
             type: String
         }
     },
@@ -30,4 +26,4 @@ const schema = mongoose.Schema(
     }
 )
 
-module.exports = mongoose.model('Profile', schema)
+module.exports = mongoose.model('UserInfo', schema)
